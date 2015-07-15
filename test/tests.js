@@ -2,17 +2,13 @@
 
 var shoovWebdrivercss = require('shoov-webdrivercss');
 
-// This is an example assuming BrowserStack is used, as the capabilities are
-// encoded in the way their system is using.
-// See https://www.browserstack.com/automate/node
-
 // This can be executed by passing the environment argument like this:
 // PROVIDER_PREFIX=browserstack SELECTED_CAPS=ie11 mocha
 // PROVIDER_PREFIX=browserstack SELECTED_CAPS=chrome mocha
 var capsConfig = {
   'chrome': {
     'browser' : 'Chrome',
-    'browser_version' : '39.0',
+    'browser_version' : '42.0',
     'os' : 'OS X',
     'os_version' : 'Yosemite',
     'resolution' : '1024x768'
@@ -32,7 +28,9 @@ var caps = selectedCaps ? capsConfig[selectedCaps] : undefined;
 var providerPrefix = process.env.PROVIDER_PREFIX ? process.env.PROVIDER_PREFIX + '-' : '';
 var testName = selectedCaps ? providerPrefix + selectedCaps : providerPrefix + 'default';
 
-describe('Search engine tests', function() {
+var baseUrl = process.env.BASE_URL ? process.env.BASE_URL : 'https://grammypro.com';
+
+describe('Live testing', function() {
 
   this.timeout(99999999);
   var client = {};
@@ -45,23 +43,34 @@ describe('Search engine tests', function() {
     shoovWebdrivercss.after(done);
   });
 
-  it('should show the Google main search page',function(done) {
+  it('should show the about page',function(done) {
     client
-      .url('https://www.google.com/?gfe_rd=cr&ei=ku8bVbG3K-SG8QeFmICQDg&gws_rd=cr&fg=1')
+      .url(baseUrl + '/about')
       .webdrivercss(testName, {
-        name: 'google'
-      }, shoovWebdrivercss.processResults)
+        name: 'about',
+        exclude:
+          [
+            '.event-monthday',
+            '.event-startend',
+          ],
+        remove:
+          [
+            '.event-row .views-field-title'
+          ]
+      },shoovWebdrivercss.processResults)
       .call(done);
-
   });
 
-  it('should show the DuckDuckGo main search page',function(done) {
+  it('should show the tour page',function(done) {
     client
-      .url('https://duckduckgo.com/')
+      .url(baseUrl + '/tour')
       .webdrivercss(testName, {
-        name: 'duckduck'
-      }, shoovWebdrivercss.processResults)
+        name: 'tour',
+        exclude:
+          [
+            '#ooyala-container-p2NmQybjoamhILgyJYPpg1t4tpyroMWt',
+          ]
+      },shoovWebdrivercss.processResults)
       .call(done);
-
   });
 });
